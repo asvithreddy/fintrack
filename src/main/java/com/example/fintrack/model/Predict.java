@@ -4,16 +4,16 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "budget") // MongoDB collection name
-public class Budget {
+public class Predict {
     @Id
     private String id; // MongoDB document ID
     private int userId;
     private double yearlyBudget;
 
     // Constructors
-    public Budget() {}
+    public Predict() {}
 
-    public Budget(int userId, double yearlyBudget) {
+    public Predict(int userId, double yearlyBudget) {
         this.userId = userId;
         this.yearlyBudget = yearlyBudget;
     }

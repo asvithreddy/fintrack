@@ -1,80 +1,39 @@
-// package com.example.fintrack.service;
-
-// import com.example.fintrack.model.Budget;
-// import com.example.fintrack.repository.BudgetRepository;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.stereotype.Service;
-
-// import java.math.BigDecimal;
-// import java.util.List;
-
-
-// @Service
-// public class BudgetPredictionService {
-//     private final BudgetRepository budgetRepository;
-
-//     @Autowired
-//     public BudgetPredictionService(BudgetRepository budgetRepository) {
-//         this.budgetRepository = budgetRepository;
-//     }
-
-//     public Budget getBudgetByUserId(int userId) {
-//         return budgetRepository.findByUserId(userId);
-//     }
-
-//     public double[] predictFutureBudgets(int userId) {
-//         Budget budget = getBudgetByUserId(userId);
-//         if (budget == null) {
-//             throw new RuntimeException("User not found!");
-//         }
-
-//         double currentBudget = budget.getYearlyBudget();
-//         double[] futureBudgets = new double[3];
-
-//         // Predicting the next 3 years with inflation (6%, 7%, 8%)
-//         double[] inflationRates = {0.06, 0.07, 0.08};
-//         for (int i = 0; i < 3; i++) {
-//             currentBudget += currentBudget * inflationRates[i];
-//             futureBudgets[i] = currentBudget;
-//         }
-
-//         return futureBudgets;
-//     }
-// }
-
 package com.example.fintrack.service;
 
 import com.example.fintrack.dto.BudgetResponse;
-import com.example.fintrack.model.Budget;
-import com.example.fintrack.repository.BudgetRepository;
+import com.example.fintrack.model.Predict;
+import com.example.fintrack.repository.PredictRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class BudgetPredictionService {
 
-    private final BudgetRepository budgetRepository;
+    private final PredictRepository budgetRepository;
 
-    public BudgetPredictionService(BudgetRepository budgetRepository) {
+    public BudgetPredictionService(PredictRepository budgetRepository) {
         this.budgetRepository = budgetRepository;
     }
 
-    public BudgetResponse predictFutureBudgets(int userId) {
-        Budget budget = budgetRepository.findByUserId(userId);
-        if (budget == null) {
-            throw new RuntimeException("User not found");
+    // New method: fetches first available budget entry
+    public BudgetResponse predictWithoutUserId() {
+        List<Predict> allBudgets = budgetRepository.findAll();
+
+        if (allBudgets.isEmpty()) {
+            throw new RuntimeException("No budget data available");
         }
 
-        double currentBudget = budget.getYearlyBudget();
+        double currentBudget = allBudgets.get(0).getYearlyBudget(); // first document
         double[] futureBudgets = new double[3];
-
-        // Predicting the next 3 years with inflation
         double[] inflationRates = {0.06, 0.07, 0.08};
+
+        double temp = currentBudget;
         for (int i = 0; i < 3; i++) {
-            currentBudget += currentBudget * inflationRates[i];
-            futureBudgets[i] = currentBudget;
+            temp += temp * inflationRates[i];
+            futureBudgets[i] = Math.round(temp * 100.0) / 100.0; // rounding to 2 decimals
         }
 
-        // Return a BudgetResponse object
-        return new BudgetResponse(budget.getYearlyBudget(), futureBudgets);
+        return new BudgetResponse(currentBudget, futureBudgets);
     }
 }
