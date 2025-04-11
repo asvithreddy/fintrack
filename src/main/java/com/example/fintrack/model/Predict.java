@@ -3,17 +3,17 @@ package com.example.fintrack.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "budget") // MongoDB collection name
+@Document(collection = "predict") // MongoDB collection name
 public class Predict {
     @Id
     private String id; // MongoDB document ID
-    private int userId;
+    private String userId;
     private double yearlyBudget;
 
     // Constructors
     public Predict() {}
 
-    public Predict(int userId, double yearlyBudget) {
+    public Predict(String userId, double yearlyBudget) {
         this.userId = userId;
         this.yearlyBudget = yearlyBudget;
     }
@@ -27,11 +27,11 @@ public class Predict {
         this.id = id;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

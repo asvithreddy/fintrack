@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PredictRepository extends MongoRepository<Predict, String> {
-    Predict findByUserId(int userId); 
+    Predict findByUserId(String userId); 
 }
