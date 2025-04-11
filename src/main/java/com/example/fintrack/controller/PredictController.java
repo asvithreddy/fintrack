@@ -1,11 +1,16 @@
+
 package com.example.fintrack.controller;
 
 import com.example.fintrack.dto.BudgetResponse;
 import com.example.fintrack.service.BudgetPredictionService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import java.time.Year;
+
 
 @RestController
-@RequestMapping("/budget")
+@RequestMapping("/predict")
 public class PredictController {
 
     private final BudgetPredictionService budgetPredictionService;
@@ -13,9 +18,8 @@ public class PredictController {
     public PredictController(BudgetPredictionService budgetPredictionService) {
         this.budgetPredictionService = budgetPredictionService;
     }
-
-    @GetMapping("/fetch")
-    public BudgetResponse fetchAndPredictBudget() {
-        return budgetPredictionService.predictWithoutUserId(); // new method
+	@GetMapping("/fetch")
+    public BudgetResponse fetchAndPredictBudget(@RequestParam String userId) {
+        return budgetPredictionService.predictFutureBudgets(userId);
     }
 }

@@ -1,3 +1,4 @@
+
 package com.example.fintrack.service;
 
 import com.example.fintrack.dto.BudgetResponse;
@@ -5,35 +6,30 @@ import com.example.fintrack.model.Predict;
 import com.example.fintrack.repository.PredictRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class BudgetPredictionService {
 
-    private final PredictRepository budgetRepository;
+    private final PredictRepository predictRepository;
 
-    public BudgetPredictionService(PredictRepository budgetRepository) {
-        this.budgetRepository = budgetRepository;
+    public BudgetPredictionService(PredictRepository predictRepository) {
+        this.predictRepository = predictRepository;
     }
 
-    // New method: fetches first available budget entry
-    public BudgetResponse predictWithoutUserId() {
-        List<Predict> allBudgets = budgetRepository.findAll();
-
-        if (allBudgets.isEmpty()) {
-            throw new RuntimeException("No budget data available");
+    public BudgetResponse predictFutureBudgets(String userId) {
+        Predict predict = predictRepository.findByUserId(userId);
+        if (predict == null) {
+            throw new RuntimeException("User not found");
         }
 
-        double currentBudget = allBudgets.get(0).getYearlyBudget(); // first document
+        double currentBudget = predict.getYearlyBudget();
         double[] futureBudgets = new double[3];
         double[] inflationRates = {0.06, 0.07, 0.08};
 
-        double temp = currentBudget;
         for (int i = 0; i < 3; i++) {
-            temp += temp * inflationRates[i];
-            futureBudgets[i] = Math.round(temp * 100.0) / 100.0; // rounding to 2 decimals
+            currentBudget += currentBudget * inflationRates[i];
+            futureBudgets[i] = currentBudget;
         }
 
-        return new BudgetResponse(currentBudget, futureBudgets);
+        return new BudgetResponse(predict.getYearlyBudget(), futureBudgets);
     }
 }
